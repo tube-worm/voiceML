@@ -1,0 +1,21 @@
+# ignore everything
+*
+
+# whitelist any directory
+!*/
+
+# ignore certain directory
+/test/
+/out/
+/voicedata/
+
+# all filetypes I'm interested in
+!.gitignore
+!*.py
+!*.cpp
+!*.sh
+!*.ipynb
+!*.md
+!*.ini
+
+.ipynb_checkpoints
