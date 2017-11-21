@@ -1,5 +1,6 @@
 # conding: utf-8
 
+import os
 import sys
 import numpy as np
 from configparser import ConfigParser
@@ -20,7 +21,25 @@ def read_config(configFilepath):
     config = set_config(configFilepath)
     trainDirpath = config["DEFAULT"]["TRAINDIR"]
     testDirpath  = config["DEFAULT"]["TESTDIR"]
-    return trainDirpath, testDirpath
+
+    namelistFilename = open(os.path.join(trainDirpath, "namelist"))
+    train_lst = namelistFilename.read().split('\n')
+    namelistFilename.close()
+    train_lst = train_lst[:len(train_lst)-1]
+    
+    namelistFilename = open(os.path.join(testDirpath, "namelist"))
+    test_lst = namelistFilename.read().split('\n')
+    namelistFilename.close()
+    test_lst = test_lst[:len(test_lst)-1]
+    
+    return trainDirpath, testDirpath, train_lst, test_lst
+
+def read_config_mfcc(configFilepath):
+    config = set_config(configFilepath)
+    samplingRate = int(config["MFCC"]["SAMPLING_RATE"])
+    frameLength = int(config["MFCC"]["FRAME_LENGTH"])
+    hopLength = int(config["MFCC"]["HOP_LENGTH"])
+    return samplingRate, frameLength, hopLength
     
 def delta_cepstrum(mfcc):
     x = np.array((1,2,3,4,5))
