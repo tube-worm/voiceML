@@ -4,6 +4,7 @@ import os
 import sys
 import numpy as np
 from configparser import ConfigParser
+from sklearn import linear_model
 
 TRAINDIR = None
 TESTDIR = None
@@ -40,47 +41,36 @@ def read_config_mfcc(configFilepath):
     frameLength = int(config["MFCC"]["FRAME_LENGTH"])
     hopLength = int(config["MFCC"]["HOP_LENGTH"])
     return samplingRate, frameLength, hopLength
-    
-def delta_cepstrum(mfcc):
-    x = np.array((1,2,3,4,5))
-    y = mfcc
-    lm = linear_model.LinearRegression()
-    lm.fit(x[:,np.newaxis],y[:,np.newaxis])
-    return lm.coef_[0]
 
-def read_mfcc(name_list, base_dir, n_sample):
+def read_config_randomforest(configFilepath):
+    config = set_config(configFilepath)
+    n_estimators = int(config["MFCC"]["NUM_OF_ESTIMATORS"])
+    return n_estimators
+
+def read_mfcc(name_list, dataDirpath):    
+    def feature_vector(mfccs):
+        def calc_mfcc_features(mfcc_seq):
+            def delta_cepstrum(mfcc):
+                x = np.array(range(len(mfcc) + 1)[1:])
+                y = mfcc
+                lm = linear_model.LinearRegression()
+                lm.fit(x[:,np.newaxis],y[:,np.newaxis])
+                return lm.coef_[0]
+
+            dc_vector = []
+            for k in range(len(mfcc_seq) - 4):
+                dc = delta_cepstrum(mfcc_seq[k:k+5])
+                dc_vector.append(dc[0])
+            deltadelta = delta_cepstrum(np.array(dc_vector))
+            return np.r_[dc_vector, deltadelta]
+
+        return np.c_[mfccs, np.array(list(map(calc_mfcc_features,mfccs)))]
+
     x,y = [],[]
     for label, name in enumerate(name_list):
-        for filename in glob.glob(os.path.join(base_dir, name, "*.mfcc.npy")):
-            mfccs = np.load(filename)
-            num_mfccs = len(mfccs)
-            for samplingnum in range(NUM_OF_SAMPLING):
-                frame_index = np.random.randint(num_mfccs)
-                dc_vector = []
-                for i in range(len(mfccs[frame_index])):
-                    dc = delta_cepstrum(mfccs[frame_index][i])
-                    dc_vector.append(dc[0])
-                x.append(np.c_[mfccs[frame_index], dc_vector])
-                y.append(label)
-    return np.array(x), np.array(y)
-
-def calc_mfccs_features(mfccs):
-    def calc_mfcc_features(mfcc_seq):
-        deltaCepstrum_vector = []
-        for k in range(len(mfcc_seq) - 4):
-            deltaCepstrum = delta_cepstrum(mfcc_seq[k:k+5])
-            deltaCepstrum_vector.append(dc[0])
-        deltadelta = delta_cepstrum(np.array(deltaCepstrum_vector))
-        return np.r_[dc_vector, deltadelta]
-    return np.c_[mfccs, np.array(list(map(calc_mfcc_features,mfccs)))]
-
-def read_mfcc_all(name_list, base_dir, n_sample):
-    x,y = [],[]
-    for label, name in enumerate(name_list):
-        filename = os.path.join(base_dir, name, (name + ".wav.mfcc.npy"))
+        filename = os.path.join(dataDirpath, name, (name + ".wav.mfcc.npy"))
         mfccs = np.load(filename)
         features = list(map(feature_vector, mfccs))
         x.extend(features)
         y.extend([label] * len(features))
     return np.array(x), np.array(y)
-
