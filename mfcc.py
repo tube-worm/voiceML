@@ -6,7 +6,9 @@ calculate mfcc for each .wav file
 dump numpy files of mfcc
 
 configure [MFCC] section in "config/config.ini"
-    NUM_OF_SAMPLING : In order to make the same number of samples. 
+    SAMPLING_RATE
+    FRAME_LENGTH
+    HOP_LENGTH
 """
 
 import glob
