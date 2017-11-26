@@ -2,7 +2,13 @@
 # coding: utf-8
 
 """
-construct random forest to predict voice actress
+calculate mfcc for each .wav file
+dump numpy files of mfcc
+
+configure [MFCC] section in "config/config.ini"
+    SAMPLING_RATE
+    FRAME_LENGTH
+    HOP_LENGTH
 """
 
 import glob
