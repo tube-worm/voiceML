@@ -16,7 +16,6 @@ import librosa
 import numpy as np
 import os
 import time
-from sklearn import linear_model
 
 import vmlutil
 
