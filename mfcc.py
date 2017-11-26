@@ -2,13 +2,7 @@
 # coding: utf-8
 
 """
-calculate mfcc for each .wav file
-dump numpy files of mfcc
-
-configure [MFCC] section in "config/config.ini"
-    SAMPLING_RATE
-    FRAME_LENGTH
-    HOP_LENGTH
+construct random forest to predict voice actress
 """
 
 import glob
@@ -16,7 +10,6 @@ import librosa
 import numpy as np
 import os
 import time
-from sklearn import linear_model
 
 import vmlutil
 
